@@ -27,10 +27,13 @@ const heightSegments = 20;
 const geometryS = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
 const sphere = new THREE.Mesh(geometryS, material);
 
+//sphere.position.x = 2;
+
 scene.add(sphere);
 renderer.setClearColor(0x000000, 1);
 
 function animate(time) {
+    sphere.rotation.y += 0.01;
     renderer.render(scene, camera);
 }
 
