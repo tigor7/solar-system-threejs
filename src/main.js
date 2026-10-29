@@ -19,8 +19,16 @@ function createPlanet(filename, radius) {
     const texture = new THREE.TextureLoader().load(filename);
     texture.colorSpace = THREE.SRGBColorSpace;
     const material = new THREE.MeshBasicMaterial({map: texture});
-
     const geometry = new THREE.SphereGeometry(radius, 30, 20);
+
+    let curve = new THREE.EllipseCurve(0, 0, 10, 10);
+    let points = curve.getPoints(50);
+    let geome = new THREE.BufferGeometry().setFromPoints(points);
+    let mate = new THREE.LineBasicMaterial({color: 0xffffff});
+    let orbit = new THREE.Line(geome, mate);
+    scene.add(orbit);
+
+    
     return new THREE.Mesh(geometry, material);
 }
 let grid = new THREE.GridHelper(20, 40);
