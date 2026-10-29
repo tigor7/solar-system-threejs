@@ -12,21 +12,33 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 let controls = new OrbitControls(camera, renderer.domElement);
 
+const light = new THREE.PointLight(0xffffff, 200, 0);
+light.position.set(0, 0, 0);
+scene.add(light);
+
+const ambient = new THREE.AmbientLight(0x404040);
+scene.add(ambient);
 
 
-
-function createPlanet(filename, radius) {
+function createCelestialBody(filename, radius, orbit, phong) {
     const texture = new THREE.TextureLoader().load(filename);
     texture.colorSpace = THREE.SRGBColorSpace;
-    const material = new THREE.MeshBasicMaterial({map: texture});
-    const geometry = new THREE.SphereGeometry(radius, 30, 20);
+    let material;
+    if (phong) {
+	material = new THREE.MeshPhongMaterial({map: texture});	
+    } else {
+	material = new THREE.MeshBasicMaterial({map: texture});
+    }
 
-    let curve = new THREE.EllipseCurve(0, 0, 10, 10);
-    let points = curve.getPoints(50);
-    let geome = new THREE.BufferGeometry().setFromPoints(points);
-    let mate = new THREE.LineBasicMaterial({color: 0xffffff});
-    let orbit = new THREE.Line(geome, mate);
-    scene.add(orbit);
+    const geometry = new THREE.SphereGeometry(radius, 30, 20);
+    if (orbit) {
+	let curve = new THREE.EllipseCurve(0, 0, 10, 10);
+	let points = curve.getPoints(50);
+	let geome = new THREE.BufferGeometry().setFromPoints(points);
+	let mate = new THREE.LineBasicMaterial({color: 0xffffff});
+	let orbit = new THREE.Line(geome, mate);
+	scene.add(orbit);
+    }
 
     
     return new THREE.Mesh(geometry, material);
@@ -36,8 +48,8 @@ grid.geometry.rotateX(Math.PI / 2);
 scene.add(grid);
 
 
-const sun = createPlanet("2k_sun.jpg", 5)
-const earth = createPlanet("2k_earth_daymap.jpg", 1)
+const sun = createCelestialBody("2k_sun.jpg", 5, false, false)
+const earth = createCelestialBody("2k_earth_daymap.jpg", 1, true, true)
 earth.geometry.rotateX(Math.PI / 2);
 
 earth.position.x = 10;
