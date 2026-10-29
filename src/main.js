@@ -6,7 +6,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 
-camera.position.z = 10
+camera.position.z = 50
 const renderer = new THREE. WebGLRenderer({antialias: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -20,7 +20,7 @@ const ambient = new THREE.AmbientLight(0x404040);
 scene.add(ambient);
 
 
-function createCelestialBody(filename, radius, phong) {
+function createCelestialMesh(filename, radius, phong) {
     const texture = new THREE.TextureLoader().load(filename);
     texture.colorSpace = THREE.SRGBColorSpace;
     let material;
@@ -54,26 +54,28 @@ class Celestial {
 
 let planets = [];
 const planetsInfo = [
-    {"filename": "2k_mercury.jpg", "orbitRadius": 10, "size": 1},
-    {"filename": "2k_venus.jpg", "orbitRadius": 15, "size": 1},
-    {"filename": "2k_mars.jpg", "orbitRadius": 20, "size": 1},
-    {"filename": "2k_earth_daymap.jpg", "orbitRadius": 25, "size": 1},
-    {"filename": "2k_mars.jpg", "orbitRadius": 30, "size": 1},
+    {"filename": "2k_mercury.jpg", "orbitRadius": 10, "radius": 0.4},
+    {"filename": "2k_venus.jpg", "orbitRadius": 20, "radius": 1},
+    {"filename": "2k_earth_daymap.jpg", "orbitRadius": 30, "radius": 1},
+    {"filename": "2k_mars.jpg", "orbitRadius": 50, "radius": 0.5},
+
     
 ];
 
 for (let info of planetsInfo) {
-    const b = createCelestialBody(info["filename"], info["size"], true, true);
+    const b = createCelestialMesh(info["filename"], info["radius"], true, true);
     b.position.x = info["orbitRadius"]
     scene.add(b)
 
     const orbit = createOrbit(info["orbitRadius"]);
     scene.add(orbit);
+
+    planets.push(b);
 }
 
 
 
-const sun = createCelestialBody("2k_sun.jpg", 5, false, false)
+const sun = createCelestialMesh("2k_sun.jpg", 5, false, false)
 
 
 scene.add(sun)
@@ -102,3 +104,8 @@ function animate(time) {
 }
 
 renderer.setAnimationLoop(animate);
+
+
+// https://science.nasa.gov/solar-system/planets/planet-sizes-and-locations-in-our-solar-system/
+// https://www.solarsystemscope.com/textures/
+// https://solarsystem.nasa.gov/planet-compare/
