@@ -12,7 +12,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 let controls = new OrbitControls(camera, renderer.domElement);
 
-const light = new THREE.PointLight(0xffffff, 200, 0);
+const light = new THREE.PointLight(0xffffff, 300, 0);
 light.position.set(0, 0, 0);
 scene.add(light);
 
@@ -20,7 +20,7 @@ const ambient = new THREE.AmbientLight(0x404040);
 scene.add(ambient);
 
 
-function createCelestialBody(filename, radius, orbit, phong) {
+function createCelestialBody(filename, radius, phong) {
     const texture = new THREE.TextureLoader().load(filename);
     texture.colorSpace = THREE.SRGBColorSpace;
     let material;
@@ -31,30 +31,52 @@ function createCelestialBody(filename, radius, orbit, phong) {
     }
 
     const geometry = new THREE.SphereGeometry(radius, 30, 20);
-    if (orbit) {
-	let curve = new THREE.EllipseCurve(0, 0, 10, 10);
-	let points = curve.getPoints(50);
-	let geome = new THREE.BufferGeometry().setFromPoints(points);
-	let mate = new THREE.LineBasicMaterial({color: 0xffffff});
-	let orbit = new THREE.Line(geome, mate);
-	scene.add(orbit);
-    }
 
     
     return new THREE.Mesh(geometry, material);
 }
-let grid = new THREE.GridHelper(20, 40);
-grid.geometry.rotateX(Math.PI / 2);
-scene.add(grid);
+function createOrbit(orbitRadius) {
+    let curve = new THREE.EllipseCurve(0, 0, orbitRadius, orbitRadius);
+    let points = curve.getPoints(50);
+    let geome = new THREE.BufferGeometry().setFromPoints(points);
+    let mate = new THREE.LineBasicMaterial({color: 0xffffff});
+    return new THREE.Line(geome, mate);
+
+    
+}
+
+class Celestial {
+    constructor(mesh, orbitRadius) {
+	this.mesh = mesh;
+	this.orbitRadius = orbitRadius;
+    }
+}
+
+let planets = [];
+const planetsInfo = [
+    {"filename": "2k_mercury.jpg", "orbitRadius": 10, "size": 1},
+    {"filename": "2k_venus.jpg", "orbitRadius": 15, "size": 1},
+    {"filename": "2k_mars.jpg", "orbitRadius": 20, "size": 1},
+    {"filename": "2k_earth_daymap.jpg", "orbitRadius": 25, "size": 1},
+    {"filename": "2k_mars.jpg", "orbitRadius": 30, "size": 1},
+    
+];
+
+for (let info of planetsInfo) {
+    const b = createCelestialBody(info["filename"], info["size"], true, true);
+    b.position.x = info["orbitRadius"]
+    scene.add(b)
+
+    const orbit = createOrbit(info["orbitRadius"]);
+    scene.add(orbit);
+}
+
 
 
 const sun = createCelestialBody("2k_sun.jpg", 5, false, false)
-const earth = createCelestialBody("2k_earth_daymap.jpg", 1, true, true)
-earth.geometry.rotateX(Math.PI / 2);
 
-earth.position.x = 10;
+
 scene.add(sun)
-scene.add(earth)
 
 renderer.setClearColor(0x000000, 1);
 
@@ -72,10 +94,9 @@ let angle = 0;
 let prevTime = 0;
 function animate(time) {
     const dt = time - prevTime;
-    earth.rotation.z += 0.0004 * dt;
-
+   
     angle = 0.0003;
-    rotate(earth, angle);
+    //rotate(earth, angle);
     renderer.render(scene, camera);
     prevTime = time;
 }
